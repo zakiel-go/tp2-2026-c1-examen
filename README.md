@@ -31,12 +31,12 @@ Es tu primer día en [cinestream.io](http://cinestream.io) y tu Líder Técnico 
 >    - `src/routes/movieRoutes.js` → definir `GET /` y registrar las rutas en `src/app.js` (hay un TODO comentado).
 >    - Al terminar: `GET /api/movies?page=2&limit=5` debe devolver las películas 6 a 10.
 
-> 2. **Detalle de película protegido** — Implementar `GET /api/movies/:id` completo, protegido con `authMiddleware`.
+> 2. **Detalle de película** — Implementar `GET /api/movies/:id`.
 >    - `src/data/movieData.js` → completar `findMovieById(id)` buscando por `_id` con `new ObjectId(id)`.
 >    - `src/services/movieService.js` → completar `getMovieByID(id)`.
 >    - `src/controllers/movieController.js` → completar `getMovieController`: responder 404 si no existe.
->    - `src/routes/movieRoutes.js` → agregar `GET /:id` con `authMiddleware`.
->    - Al terminar: sin token debe responder 401; con token y un id válido debe devolver la película.
+>    - `src/routes/movieRoutes.js` → agregar `GET /:id`.
+>    - Al terminar: con un id válido debe devolver la película; con un id que no existe debe responder 404.
 
 > 3. **Filtro por género** — Modificar el endpoint `GET /api/movies` para que acepte un query param opcional `genre`.
 >    - Si se recibe `genre`, agregar un filtro a la consulta de MongoDB: `{ genres: genre }` (el campo `genres` es un array en la colección).
@@ -49,10 +49,12 @@ Es tu primer día en [cinestream.io](http://cinestream.io) y tu Líder Técnico 
 >    - ⚠️ Esta ruta debe definirse **antes** de `GET /:id` en el router. Si no, Express interpretará "winners" como un id. Hay una advertencia en el archivo.
 >    - Al terminar: `GET /api/movies/winners` debe devolver las 10 películas con más premios ganados.
 
-> 5. **Búsqueda por título** — Implementar `GET /api/movies/search?q=termino`.
->    - Completar `findMoviesByTitle(query)` en `movieData.js` usando expresión regular: `{ title: { $regex: query, $options: "i" } }`.
->    - Completar el servicio, controlador (validar que venga `q`, si no responder 400) y agregar la ruta **antes de `/:id`**.
->    - Al terminar: `GET /api/movies/search?q=god` debe devolver películas como "The Godfather".
+> 5. **Películas más recientes** — Implementar `GET /api/movies/latest`.
+>    - `src/data/movieData.js` → `findLatestMovies()` ya está implementada — no necesitás modificarla.
+>    - `src/services/movieService.js` → completar `getLatestMovies()`: llamar a `findLatestMovies()` y retornar el resultado.
+>    - `src/controllers/movieController.js` → completar `getLatestMoviesController`: llamar a `getLatestMovies()` y responder con el array en JSON. Manejar errores con status 500.
+>    - `src/routes/movieRoutes.js` → agregar `GET /latest` **antes de** `GET /:id`.
+>    - Al terminar: `GET /api/movies/latest` debe devolver las 5 películas con el año más alto.
 
 > Desde ya muchas gracias! Como te comenté en la entrevista, me importa mucho que respetes la arquitectura en capas — no pongas lógica de MongoDB en los controladores. Si terminás antes, dejame una nota en el README con cualquier decisión que hayas tomado.
 
@@ -69,11 +71,14 @@ Si ya terminaste, o son las 10:00, asegurate de seguir los siguientes pasos para
 
 ## Listado de endpoints implementados
 
-Completá la siguiente tabla con los endpoints que implementaste. Especificá los parámetros si los hubiera.
 
 | Método | Endpoint | Parámetros | Requiere token | Descripción |
 |--------|----------|------------|----------------|-------------|
+| POST | `/api/users/register` | body: `name`, `email`, `password` | No | Registro de usuario |
+| POST | `/api/users/login` | body: `email`, `password` | No | Login — devuelve JWT |
+| GET | `/api/users` | — | Sí | Lista todos los usuarios |
+| GET | `/api/users/:id` | `id` (ObjectId) | No | Detalle de un usuario |
 | GET | `/api/movies` | `page`, `limit`, `genre` (opcional) | No | Listado de películas paginado |
 | GET | `/api/movies/winners` | — | No | Top 10 películas con más premios |
-| GET | `/api/movies/search` | `q` (texto a buscar) | No | Búsqueda de películas por título |
-| GET | `/api/movies/:id` | `id` (ObjectId) | Sí | Detalle de una película |
+| GET | `/api/movies/latest` | — | No | Las 5 películas más recientes |
+| GET | `/api/movies/:id` | `id` (ObjectId) | No | Detalle de una película |
